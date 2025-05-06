@@ -5,6 +5,7 @@ import (
 	"flag"
 	"github.com/miekg/dns"
 	"log"
+	"strings"
 	"sync"
 )
 
@@ -58,7 +59,8 @@ func NewDNSHandler() *DNSHandler {
 
 func (h *DNSHandler) ServeDNS(w dns.ResponseWriter, req *dns.Msg) {
 	q := req.Question[0]
-	labels := dns.SplitDomainName(q.Name)
+	normalizedQName := strings.ToLower(q.Name) // add a comment here
+	labels := dns.SplitDomainName(normalizedQName)
 	implantID := labels[0]
 
 	reply := new(dns.Msg)
