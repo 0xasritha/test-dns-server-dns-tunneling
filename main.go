@@ -50,7 +50,7 @@ type DNSHandler struct {
 func NewDNSHandler() *DNSHandler {
 	return &DNSHandler{
 		commands: map[string][]string{
-			"1": {"touch iwashere1.txt", "touch iwashere2.txt"},
+			"1": {"touch iwashere1.txt", "touch iwashere2.txt", "echo HI"},
 			"2": {"touch hheheheh1.txt", "touch hheheeheh2.txt"},
 		},
 		results: make(map[string][][]byte),
